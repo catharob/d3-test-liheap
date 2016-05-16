@@ -4,26 +4,27 @@ var margin = {
     bottom: 30,
     left: 60
 },
-	width = 960 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+	width = 400 - margin.left - margin.right,
+    height = 1000 - margin.top - margin.bottom;
 
-var x = d3.scale.ordinal()
-    .rangeRoundBands([0, width], .1);
+var y = d3.scale.ordinal()
+    .rangeRoundBands([height, 0], .1);
 
-var y = d3.scale.linear()
-    .rangeRound([height, 0]);
+var x = d3.scale.linear()
+    .rangeRound([0, width]);
 
 var color = d3.scale.ordinal()
-    .range(["orange", "blue", "red", "green"]);
+    .range(["#FD8D3C", "#756bb1", "#fdbe85", "#cbc9e2", "#969696"]);
 
 var xAxis = d3.svg.axis()
     .scale(x)
-    .orient("bottom");
+    .orient("bottom")
+    .tickFormat(d3.format(".2s"));
 
 var yAxis = d3.svg.axis()
     .scale(y)
-    .orient("left")
-    .tickFormat(d3.format(".2s"));
+    .orient("left");
+    // ;
 
 var svg = d3.select("#chart").append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -54,10 +55,10 @@ d3.csv("data.csv", function (error, data) {
 		// 	return b.total - a.total;
 		// });
 		
-		x.domain(data.map(function(d){
+		y.domain(data.map(function(d){
 			return d.state;
 		}));
-		y.domain([0, d3.max(data,function(d){
+		x.domain([0, d3.max(data,function(d){
 			return d.total;
 		})]);
 
@@ -75,7 +76,7 @@ d3.csv("data.csv", function (error, data) {
 			.enter().append("g")
 			.attr("class", "g")
 			.attr("transform", function(d){
-				return "translate(" + x(d.state) + ",0)";
+				return "translate(0," + y(d.state) + ")";
 			});
 
 		state.selectAll("rect")
@@ -83,12 +84,12 @@ d3.csv("data.csv", function (error, data) {
 				return d.assistance;
 			})
 			.enter().append("rect")
-			.attr("width", x.rangeBand())
-			.attr("y", function(d){
-				return y(d.y1);
+			.attr("height", y.rangeBand())
+			.attr("x", function(d){
+				return x(d.y0);
 			})
-			.attr("height", function(d){
-				return y(d.y0) - y(d.y1);
+			.attr("width", function(d){
+				return x(d.y1) - x(d.y0);
 			})
 			.style("fill", function(d){
 				return color(d.name);
