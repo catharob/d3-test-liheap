@@ -1,37 +1,44 @@
+// margins
+
 var margin = {
     top: 20,
-    right: 20,
+    right: 150, // add space here to make room for legend
     bottom: 30,
     left: 60
 },
-	width = 400 - margin.left - margin.right,
+	width = 600 - margin.left - margin.right,
     height = 1000 - margin.top - margin.bottom;
+
+// x and y scale. y ordinal and x linear for vertically stacked bars
 
 var y = d3.scale.ordinal()
     .rangeRoundBands([height, 0], .1);
 
 var x = d3.scale.linear()
-    .rangeRound([0, width]);
+    .rangeRound([0, width-30]); // add space here to make room for legend
 
+// pretty colors!
 var color = d3.scale.ordinal()
-    .range(["#FD8D3C", "#756bb1", "#fdbe85", "#cbc9e2", "#969696"]);
+    .range(["#FD8D3C",  "#fdbe85", "#756bb1", "#cbc9e2", "#969696"]);
 
+// drawing axes
 var xAxis = d3.svg.axis()
     .scale(x)
-    .orient("bottom")
+    .orient("top")
     .tickFormat(d3.format(".2s"));
 
 var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
-    // ;
 
+// adds chart to the div
 var svg = d3.select("#chart").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+// pull in data
 d3.csv("data.csv", function (error, data) {
 		if(error) throw error;
 
@@ -50,10 +57,6 @@ d3.csv("data.csv", function (error, data) {
 			})
 			d.total = d.assistance[d.assistance.length - 1].y1;
 		});
-
-		// data.sort(function(a,b){
-		// 	return b.total - a.total;
-		// });
 		
 		y.domain(data.map(function(d){
 			return d.state;
@@ -64,7 +67,7 @@ d3.csv("data.csv", function (error, data) {
 
 		svg.append("g")
 			.attr("class", "x axis")
-			.attr("transform", "translate(0," + height + ")")
+			// getting rid of this code leaves x axis at top of chart: '.attr("transform", "translate(0," + height + ")")'
 			.call(xAxis);
 
 		svg.append("g")
@@ -76,7 +79,7 @@ d3.csv("data.csv", function (error, data) {
 			.enter().append("g")
 			.attr("class", "g")
 			.attr("transform", function(d){
-				return "translate(0," + y(d.state) + ")";
+				return "translate(0," + y(d.state) + ")"; // this line important for vertical stacking (using y instead of x)
 			});
 
 		state.selectAll("rect")
@@ -84,14 +87,39 @@ d3.csv("data.csv", function (error, data) {
 				return d.assistance;
 			})
 			.enter().append("rect")
-			.attr("height", y.rangeBand())
+			.attr("height", y.rangeBand()) // height in rangeBand for vertical stacking
 			.attr("x", function(d){
 				return x(d.y0);
-			})
+			}) // the horizontal position in the stack
 			.attr("width", function(d){
 				return x(d.y1) - x(d.y0);
-			})
+			}) //horizontal 'height' of the bar
 			.style("fill", function(d){
 				return color(d.name);
+			});
+
+		// draws the legend
+		var legend = svg.selectAll(".legend")
+			.data(color.domain().slice())
+			.enter()
+			.append("g")
+			.attr("class", "legend")
+			.attr("transform", function(d,i){
+				return "translate(0," + i*20 + ")";
+			});
+
+		legend.append("rect")
+			.attr("x", width - 18)
+			.attr("width", 18)
+			.attr("height", 18)
+			.style("fill", color);
+
+		legend.append("text")
+			.attr("x", width + 5) 
+			.attr("y", 9)
+			.attr("dy", ".35em")
+			.style("text-anchor", "start") // "start" for text aligned right
+			.text(function(d){
+				return d;
 			});
 });

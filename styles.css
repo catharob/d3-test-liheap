@@ -12,3 +12,14 @@ body {
 .x.axis path {
   display: none;
 }
+
+.y.axis path {
+  display: none;
+}
+
+/*.legend {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 60%;
+ }*/
+
+ 
