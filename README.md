@@ -2,7 +2,9 @@
 
 This chart uses data about how states divvy up [federal funding for energy assistance](https://liheapch.acf.hhs.gov/tables/FY2016/components.htm). 
 
-Things that will change soon:
-* States will be on vertical axis, and bars will be oriented horizontally.
-* Possibly, legend will show which colors for which kind of assistance. Right now orange = heat, blue = cooling, red = crisis and green = weatherization.
-* Tooltip if I can figure out how.
+Featuring:
+* Legend
+* Tooltip (using [d3.tip plugin](https://github.com/Caged/d3-tip) with comments from original government dataset (lightly edited for space and clarity)
+* In-script data reference (instead of CSV)
+
+The `data.csv` file looks slightly different from data referenced in script. This is only in the addition of the full state names for alphabetization and tooltip purposes, and comments, also for tooltip.
