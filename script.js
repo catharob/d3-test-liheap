@@ -31,12 +31,21 @@ var yAxis = d3.svg.axis()
     .scale(y)
     .orient("left");
 
+// var tip = d3.tip()
+//   .attr('class', 'd3-tip')
+//   .offset([-10, 0])
+//   .html(function(d) {
+//     return "<strong>Frequency:</strong> <span style='color:red'>" + d.value + "</span>";
+//   })
+
 // adds chart to the div
 var svg = d3.select("#chart").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+// svg.call(tip);
 
 // pull in data
 d3.csv("data.csv", function (error, data) {
@@ -96,6 +105,21 @@ d3.csv("data.csv", function (error, data) {
 			}) //horizontal 'height' of the bar
 			.style("fill", function(d){
 				return color(d.name);
+			})
+			// .on('mouseover', tip.show)
+   //    		.on('mouseout', tip.hide);
+
+			.on("mouseover",function(){
+				tooltip.style("display", null);
+			})
+			.on("mouseout", function(){
+				tooltip.style("display", "none");
+			})
+			.on("mousemove", function(d){
+				var xPosition = d3.mouse(this)[0] - 15;
+				var yPosition = d3.mouse(this)[1] - 25;
+				tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+				tooltip.select("text").text(d.y);
 			});
 
 		// draws the legend
@@ -122,4 +146,23 @@ d3.csv("data.csv", function (error, data) {
 			.text(function(d){
 				return d;
 			});
+
+		// draw the tooltip
+
+		var tooltip = svg.append("g")
+  			.attr("class", "tooltip")
+  			.style("display", "none");
+    
+		tooltip.append("rect")
+		  .attr("width", 30)
+		  .attr("height", 20)
+		  .attr("fill", "white")
+		  .style("opacity", 0.5);
+
+		tooltip.append("text")
+		  .attr("x", 15)
+		  .attr("dy", "1.2em")
+		  .style("text-anchor", "middle")
+		  .attr("font-size", "12px")
+		  .attr("font-weight", "bold");
 });
